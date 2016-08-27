@@ -1,0 +1,23 @@
+实验准备vmware workstation
+
+准备模板机器
+
+硬件
+1cpu 1g内存 20g存储
+
+系统
+centos6.5 64
+
+分区
+／ 剩余容量
+／boot 200m
+swap 2048m
+
+最小化安装
+
+创建链接克隆
+
+开机后修改mac地址
+ifconfig -a
+修改 ifcfg－eth0
+rm -rf /etc/udev/rules.d/70-persistent-net.rules
