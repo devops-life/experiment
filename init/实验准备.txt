@@ -60,6 +60,20 @@ hostname salt-master-01.devops.zipeiyi.com
 
 Ps:请在业务机器上线前修改好主机名称，禁止随意修改主机名称,hostname 命令慎用
 
+
+如何实现自动化，只需要输入主机名称和IP地址（ip地址静态配置或指定ip）
+
+ip地址划分规则
+按照业务、功能划分网络段
+比如100以下网段给业务部门，100-200给功能需求，200以后做备份和存储
+10.x 
+20.x
+100.x
+110.x
+200.x
+210.x
+
+安全方面
 锁住network文件
 chattr +i /etc/sysconfig/network
 
