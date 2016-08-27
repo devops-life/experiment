@@ -38,3 +38,33 @@ ifconfig -a|head -1
 修改  /etc/sysconfig/network-scripts/ifcfg-eth0
 rm -rf /etc/udev/rules.d/70-persistent-net.rules
 
+
+修改主机名
+
+主机命名规则
+业务＋编号＋部门+公司域名
+
+例如
+salt-master-01.devops.zipeiyi.com
+zabbix-server-01.devops.zipeiyi.com
+
+修改/etc/sysconfig/network
+
+HOSTNAME=salt-master-01.devops.zipeiyi.com
+
+修改/etc/hosts
+192.168.1.201   salt-master-01.devops.zipeiyi.com
+
+临时生效
+hostname salt-master-01.devops.zipeiyi.com
+
+Ps:请在业务机器上线前修改好主机名称，禁止随意修改主机名称,hostname 命令慎用
+
+锁住network文件
+chattr +i /etc/sysconfig/network
+
+
+
+
+
+
