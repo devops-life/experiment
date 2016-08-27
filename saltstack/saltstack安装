@@ -1,0 +1,76 @@
+
+saltstack
+
+在日常工作中尽可能多的使用域名
+使用中国科学技术大学https://lug.ustc.edu.cn/，epel源
+
+curl https://lug.ustc.edu.cn/wiki/_export/code/mirrors/help/epel?codeblock=0 -o /etc/yum.repos.d/epel.repo
+curl -s http://mirrors.ustc.edu.cn/epel/RPM-GPG-KEY-EPEL-6 -o  /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-6
+master安装
+yum install salt-master -y
+
+ /etc/init.d/salt-master start
+ chkconfig salt-master on
+ 
+ 查看安装文件
+ rpm -ql salt-master
+/etc/rc.d/init.d/salt-master
+/etc/salt/master
+/usr/bin/salt
+/usr/bin/salt-cp
+/usr/bin/salt-key
+/usr/bin/salt-master
+/usr/bin/salt-run
+/usr/bin/salt-unity
+/usr/share/man/man1/salt-cp.1.gz
+/usr/share/man/man1/salt-key.1.gz
+/usr/share/man/man1/salt-master.1.gz
+/usr/share/man/man1/salt-run.1.gz
+/usr/share/man/man1/salt-unity.1.gz
+/usr/share/man/man7/salt.7.gz
+
+master开启4505、4506端口
+SaltStack master启动后默认监听4505和4506两个端口。4505（publish_port）为saltstack的消息发布系统，4506（ret_port）为saltstack客户端与服务端通信的端口
+通过lsof命令查看minion与master在4505端口保持持续连接
+
+lsof -i:4505 -n
+COMMAND    PID USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+salt-mast 1535 root   12u  IPv4  18990      0t0  TCP *:4505 (LISTEN)
+salt-mast 1535 root   14u  IPv4  23376      0t0  TCP 192.168.1.201:4505->192.168.1.202:40453 (ESTABLISHED)
+
+Master与Minion认证
+minion在第一次启动时，会在/etc/salt/pki/minion/（该路径在/etc/salt/minion里面设置）下自动生成minion.pem（private key）和 minion.pub（public key），然后将 minion.pub发送给master。
+master在接收到minion的public key后，通过salt-key命令accept minion public key，这样在master的/etc/salt/pki/master/minions下的将会存放以minion id命名的 public key，然后master就能对minion发送指令了。
+
+master查看证书
+salt-key  -L
+
+master接受证书
+salt-key -a zabbix-server-01.devops.zipeiyi.com －y
+salt-key -A -y
+
+测试与minion通信
+ salt zabbix-server-01.devops.zipeiyi.com test.ping
+ salt '*' test.ping
+
+ minon安装
+
+yum -y install salt-minion
+
+
+ rpm -ql salt-minion
+/etc/rc.d/init.d/salt-minion
+/etc/salt/minion
+/usr/bin/salt-call
+/usr/bin/salt-minion
+/usr/share/man/man1/salt-call.1.gz
+/usr/share/man/man1/salt-minion.1.gz
+
+配置master ip地址
+sed -i 's/#master: salt/master: salt-master-01.devops.zipeiyi.com/' /etc/salt/minion
+
+/etc/init.d/salt-minion start
+chkconfig salt-minion on
+
+
+
