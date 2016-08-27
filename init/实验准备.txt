@@ -15,9 +15,26 @@ swap 2048m
 
 最小化安装
 
-创建链接克隆
+/etc/sysconfig/network-scripts/ifcfg-eth0
+配置IP地址
+DEVICE=eth0  网卡名称
+HWADDR=00:0C:29:B9:9B:49 MAC地址
+TYPE=Ethernet 类型
+UUID=839e5e59-0fdc-4d54-bae0-4f0351706c91 UUID唯一标识
+ONBOOT=yes 设置为yes，开机自动启用网络连接
+NM_CONTROLLED=yes network mamager的参数 ,是否可以由NNetwork Manager托管
+BOOTPROTO=static 设置为none禁止DHCP，设置为static启用静态IP地址，设置为dhcp开启DHCP服务
+IPADDR=192.168.1.201 IP地址
+NETMASK=255.255.255.0 子网掩码
+GATEWAY=192.168.1.1 网关地址
+DNS1=219.239.26.42 第一个DNS服务器
+
+可选 DEFROUTE=yes 就是default route，是否把这个eth设置为默认路由
+DNS1 配置在网卡接口上永久生效，临时生效/etc/resolv.conf 增加“nameserver DNS地址”
+
 
 开机后修改mac地址
-ifconfig -a
-修改 ifcfg－eth0
+ifconfig -a|head -1
+修改  /etc/sysconfig/network-scripts/ifcfg-eth0
 rm -rf /etc/udev/rules.d/70-persistent-net.rules
+
