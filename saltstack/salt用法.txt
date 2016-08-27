@@ -1,0 +1,115 @@
+salt用法
+
+salt用法
+Usage: salt [options] '<target>' <function> [arguments]
+
+管理对象 target
+
+对象属性 grains 对象的静态信息
+数据管理中心 pillar 对象的软件版本、用户名和密码等信息
+salt  target sys.list_functions grains
+salt  target sys.list_functions pillar
+
+
+salt target sys.list_modules
+针对管理对象操作 module
+查看modules中方法
+ salt  target sys.list_functions  function
+
+sys.list_modules
+sys.list_functions
+sys.doc
+
+查看方法的具体用法
+salt zabbix-server-01.devops.zipeiyi.com sys.doc cmd.run
+
+配置管理
+
+查看配置管理模块
+sys.list_state_modules
+查看模块方法
+sys.list_state_functions
+查看state指定用法
+sys.state_doc
+
+top.sls 入口文件，指定那些机器调用哪些states.sls文件
+
+
+执行结果 retrun minion返回数据进行存储
+sys.list_returners
+return流程 从master接受任务后，把return存储在return服务器
+
+
+job管理
+在master上执行操作都会记录一个jid，minion也会创建一个jid文件，执行完成后删除，master端会保存在jobs
+
+salt \* sys.doc saltutil|grep job
+'saltutil.find_cached_job:'
+    Return the data for a specific cached job id
+        salt '*' saltutil.find_cached_job <job id>
+'saltutil.find_job:'
+    Return the data for a specific job id
+        salt '*' saltutil.find_job <job id>
+'saltutil.kill_job:'
+    Sends a kill signal (SIGKILL 9) to the named salt job's process
+        salt '*' saltutil.kill_job <job id>
+        salt '*' saltutil.runner jobs.list_jobs
+'saltutil.signal_job:'
+    Sends a signal to the named salt job's process
+        salt '*' saltutil.signal_job <job id> 15
+'saltutil.term_job:'
+    Sends a termination signal (SIGTERM 15) to the named salt job's process
+        salt '*' saltutil.term_job <job id>
+通过 saltutil管理
+
+event和reactor
+
+
+event对每个事件的详细记录，比job更底层
+
+另开一个窗口执行  salt '*' cmd.run 'hostname'
+salt-run state.event pretty=true
+salt/event/new_client   {
+    "_stamp": "2016-08-27T21:02:19.104527"
+}
+20160828050219114876    {
+    "_stamp": "2016-08-27T21:02:19.115205", 
+    "minions": [
+        "zabbix-server-01.devops.zipeiyi.com"
+    ]
+}
+salt/job/20160828050219114876/new       {
+    "_stamp": "2016-08-27T21:02:19.115339", 
+    "arg": [
+        "hostname"
+    ], 
+    "fun": "cmd.run", 
+    "jid": "20160828050219114876", 
+    "minions": [
+        "zabbix-server-01.devops.zipeiyi.com"
+    ], 
+    "tgt": "*", 
+    "tgt_type": "glob", 
+    "user": "root"
+}
+salt/job/20160828050219114876/ret/zabbix-server-01.devops.zipeiyi.com   {
+    "_stamp": "2016-08-27T21:02:19.243753", 
+    "cmd": "_return", 
+    "fun": "cmd.run", 
+    "fun_args": [
+        "hostname"
+    ], 
+    "id": "zabbix-server-01.devops.zipeiyi.com", 
+    "jid": "20160828050219114876", 
+    "retcode": 0, 
+    "return": "zabbix-server-01.devops.zipeiyi.com", 
+    "success": true
+}
+reactor
+基于event做相应的操作
+
+mine
+saltstack收集minion数据存储到master上的一个组件
+
+
+对象信息 管理对象 对象状态
