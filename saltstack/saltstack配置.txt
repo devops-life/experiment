@@ -1,0 +1,32 @@
+saltstack配置
+
+state系统配置
+
+
+
+文件服务配置
+file_roots:
+#   base:
+#     - /srv/salt/
+#   dev:
+#     - /srv/salt/dev/services
+#     - /srv/salt/dev/states
+#   prod:
+#     - /srv/salt/prod/services
+#     - /srv/salt/prod/states
+#
+#file_roots:
+#  base:
+#    - /srv/salt
+mkdir -p /srv/salt/{dev,prod}
+
+pillar系统配置
+#pillar_roots:
+#  base:
+#    - /srv/pillar
+#
+#ext_pillar:
+#  - hiera: /etc/hiera.yaml
+#  - cmd_yaml: cat /etc/salt/yaml
+
+
