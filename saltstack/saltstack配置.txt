@@ -29,4 +29,10 @@ pillar系统配置
 #  - hiera: /etc/hiera.yaml
 #  - cmd_yaml: cat /etc/salt/yaml
 
+状态文件
+state.sls状态文件的编写考虑到模块化和通用性
+
+系统初始化
+功能模块
+业务模块
 
