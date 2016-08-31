@@ -1,0 +1,43 @@
+saltstack实战
+saltstack 环境配置
+
+修改／etc/salt/master配置文件
+file_roots:
+  base:
+    - /srv/salt/base
+  prod:
+    - /srv/salt/prod
+
+pillar_roots:
+  base:
+    - /srv/pillar/base
+  prod:
+    - /srv/pillar/prod
+
+
+mkdir -p /srv/salt/{base,prod}
+mkdir -p /srv/pillar/{base,prod}
+
+重启salt-master
+
+注意格式 yaml
+
+yaml编写技巧
+
+缩进 每个缩进级别由两个空格组成
+冒号 表示键值对（冒号后面有一个空格，表示路径对除外）
+短横杠 表示列表项
+
+jingjia使用技巧
+
+file状态使用template参数 - template: jinjia
+模版文件里面变量使用{{ 名称 }}
+file状态模块里面指定变量列表
+列子
+- defaults:
+PORT: 8080
+{{ grains['fqdn_ip4'] }}
+{{ salt['network.hw_addr']('eth0') }}
+{{ pillar[['apache']['PORT'] }}
+
+
