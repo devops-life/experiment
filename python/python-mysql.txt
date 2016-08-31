@@ -1,0 +1,3 @@
+python mysql
+
+http://zetcode.com/db/mysqlpython/
