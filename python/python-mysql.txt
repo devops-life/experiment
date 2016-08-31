@@ -1,3 +1,5 @@
 python mysql
 
 http://zetcode.com/db/mysqlpython/
+http://www.linuxhomenetworking.com
+https://linuxfreelancer.com/
