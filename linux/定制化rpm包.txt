@@ -1,0 +1,132 @@
+FPM的github：https://github.com/jordansissel/fpm
+wiki:https://github.com/jordansissel/fpm/wiki
+FPM功能简单说就是将一种类型的包转换成另一种类型。
+fpm是ruby写的，因此系统环境需要ruby，且ruby版本号大于1.8.5。
+#rpm包的组成
+
+rpm包的组成
+RPM的命名格式：name-version-release.arch.rpm
+name：这里指的是对应软件的名称，比如httpd，我们的apache服务  
+version：这里的版本主要指的是对应的源代码的版本号(这其中的version有三部分组成：主版本号、次版本号、发布号) 
+release：这个是这个RPM的修订的次数，发布商的发布版本号，与源代码的版本号无关  
+arch：这个是它所支持的硬件平台，有x86_64,i386,ppc,noarch等
+
+例子：httpd-2.2.15-29.el6.x86_64.rpm 
+上面，我们以httpd服务为例，它的name就是httpd，version为2.2.15，release为29.e16（红帽或者Centos厂商修订发布的第29次），这里，还包含了此包使用的系统，即centos，arch就是x86_64。
+ 
+说明下常见的el6是代表啥意思:
+
+fcXX，elXX：表示这个软件包的发行商版本，就像这里的fc18，说明这个软件包是在Fedora
+18下使用的。而openssl-1.0.0-20.el6.x86_64.rpm表示这个软件包是在RHEL 6.x(Red Hat Enterprise
+Linux)/CentOS 6.x下使用。
+
+#fpm
+# 安装ruby模块
+yum install ruby-devel gcc make rpm-build -y
+
+# 添加阿里云的Rubygems仓库，外国的源慢
+gem sources -a http://mirrors.aliyun.com/rubygems/
+
+http://mirrors.aliyun.com/rubygems/ added to sources
+
+# 移除原生的Ruby仓库
+gem sources --remove http://rubygems.org/
+
+http://rubygems.org/ removed from sources
+
+#查看源
+gem sources -l
+*** CURRENT SOURCES ***
+
+http://mirrors.aliyun.com/rubygems/
+
+# 安装fpm
+
+gem install fpm
+出现如下问题
+ruby-xz requires Ruby version >= 1.9.3
+解决方法:安装旧版本的fpm
+gem install fpm -v 1.4.0
+
+#查看fpm版本
+fpm --version
+1.4.0
+
+#fpm常用参数
+-s:指定源类型
+-t:指定目标类型，即想要制作为什么包
+-n:指定包的名字
+-v:指定包的版本号
+-C:指定打包的相对路径
+-d:指定依赖于哪些包
+-f:第二次包时目录下如果有同名安装包存在，则覆盖它
+-p:输出的安装包的目录，不想放在当前目录下就需要指定
+--post-install:软件包安装完成之后所要运行的脚本；同--offer-install
+--pre-install:软件包安装完成之前所要运行的脚本；同--before-install
+--post-uninstall:软件包卸载完成之后所要运行的脚本；同--offer-remove
+--pre-uninstall:软件包卸载完成之前所要运行的脚本；同—before-remove
+
+#定制zabbix_agentd包
+groupadd zabbix
+useradd -g zabbix zabbix
+./configure --prefix=/app/zpy/zabbix/ --enable-agent
+这步很重要
+make install DESTDIR=/data/rpm/tmp/
+
+/data/nginx/zpy/zpy-custom/6/x86_64/Packages
+groupadd zabbix
+useradd -g zabbix zabbix
+fpm -s dir -t rpm -n zabbix_agentd -v 3.0.4 --iteration 1.el6 -p /data/nginx/zpy/zpy-custom/6/x86_64/Packages -C /data/rpm/tmp --post-install /data/rpm/scripts/install_after.sh --post-uninstall /data/rpm/scripts/remove_after.sh -f
+createrepo --update /data/nginx/zpy/zpy-custom/6/x86_64/
+#查看安装详细列表
+rpm -qpl zabbix_agentd-3.0.4-1.el6.x86_64.rpm 
+/app/zpy/zabbix/bin/zabbix_get
+/app/zpy/zabbix/bin/zabbix_sender
+/app/zpy/zabbix/etc/zabbix_agentd.conf
+/app/zpy/zabbix/etc/zabbix_agentd.conf.d
+/app/zpy/zabbix/lib
+/app/zpy/zabbix/logs
+/app/zpy/zabbix/sbin/zabbix_agentd
+/app/zpy/zabbix/share/man/man1/zabbix_get.1
+/app/zpy/zabbix/share/man/man1/zabbix_sender.1
+/app/zpy/zabbix/share/man/man8/zabbix_agentd.8
+/etc/rc.d/init.d/zabbix_agentd
+#查看包属性 
+rpm -qpi zabbix_agentd-3.0.4-1.el6.x86_64.rpm 
+Name        : zabbix_agentd                Relocations: / 
+Version     : 3.0.4                             Vendor: root@elkzabbix03
+Release     : 1.el6                         Build Date: Wed Sep 14 15:18:58 2016
+Install Date: (not installed)               Build Host: elkzabbix03
+Group       : default                       Source RPM: zabbix_agentd-3.0.4-1.el6.src.rpm
+Size        : 1833654                          License: unknown
+Signature   : (none)
+Packager    : <root@elkzabbix03>
+URL         : http://example.com/no-uri-given
+Summary     : no description given
+Description :
+no description given
+#查看rpm包中的脚本信息
+rpm -qp --scripts zabbix_agentd-3.0.4-1.el6.x86_64.rpm 
+postinstall scriptlet (using /bin/sh):
+#!/bin/bash
+source /etc/rc.d/init.d/functions
+id -u zabbix >/dev/null || useradd -M -s /sbin/nologin zabbix >/dev/null 2>&1
+id -g zabbix >/dev/null || useradd -g zabbix zabbix
+chown zabbix.zabbix /app/zpy/zabbix -R
+exit 0
+postuninstall scriptlet (using /bin/sh):
+#!/bin/bash
+source /etc/rc.d/init.d/functions
+rm -rf /app/zpy/zabbix
+rm -rf /etc/rc.d/init.d/zabbix_agentd
+userdel zabbix
+exit 0
+
+df -hT 命令特别慢
+strace df -hT 发现卡在/test 目录
+在根下ls出现如下错误
+ls: cannot access "/test": Host is down
+排查是挂载原因
+umount /test
+目录没有文件,删除目录
+rm -rf /test

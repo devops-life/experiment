@@ -1,0 +1,114 @@
+possible SYN flooding on port 8080. Sending cookies.
+Max threads: 200 Current thread count: 200 Current thread busy: 200 Keeped alive sockets count: 1
+org.apache.coyote.ajp.AjpMessage.processHeader Invalid message received with signature 20559
+  
+  
+ 请求增加 延迟增加
+https://tomcat.apache.org/tomcat-8.0-doc/config/http.html
+
+ acceptCount	
+The maximum queue length for incoming connection requests when all possible request processing threads are in use. Any requests received when the queue is full will be refused. The default value is 100.
+
+acceptorThreadCount	
+The number of threads to be used to accept connections. Increase this value on a multi CPU machine, although you would never really need more than 2. Also, with a lot of non keep alive connections, you might want to increase this value as well. Default value is 1.
+
+acceptorThreadPriority	
+The priority of the acceptor threads. The threads used to accept new connections. The default value is 5 (the value of the java.lang.Thread.NORM_PRIORITY constant). See the JavaDoc for the java.lang.Thread class for more details on what this priority means.
+
+address	
+For servers with more than one IP address, this attribute specifies which address will be used for listening on the specified port. By default, this port will be used on all IP addresses associated with the server.
+
+allowedTrailerHeaders	
+By default Tomcat will ignore all trailer headers when processing chunked input. For a header to be processed, it must be added to this comma-separated list of header names.
+
+bindOnInit	
+Controls when the socket used by the connector is bound. By default it is bound when the connector is initiated and unbound when the connector is destroyed. If set to false, the socket will be bound when the connector is started and unbound when it is stopped.
+
+compressableMimeType	
+The value is a comma separated list of MIME types for which HTTP compression may be used. The default value is text/html,text/xml,text/plain,text/css,text/javascript,application/javascript .
+
+compression	
+The Connector may use HTTP/1.1 GZIP compression in an attempt to save server bandwidth. The acceptable values for the parameter is "off" (disable compression), "on" (allow compression, which causes text data to be compressed), "force" (forces compression in all cases), or a numerical integer value (which is equivalent to "on", but specifies the minimum amount of data before the output is compressed). If the content-length is not known and compression is set to "on" or more aggressive, the output will also be compressed. If not specified, this attribute is set to "off".
+
+Note: There is a tradeoff between using compression (saving your bandwidth) and using the sendfile feature (saving your CPU cycles). If the connector supports the sendfile feature, e.g. the NIO connector, using sendfile will take precedence over compression. The symptoms will be that static files greater that 48 Kb will be sent uncompressed. You can turn off sendfile by setting useSendfile attribute of the connector, as documented below, or change the sendfile usage threshold in the configuration of the DefaultServlet in the default conf/web.xml or in the web.xml of your web application.
+
+compressionMinSize	
+If compression is set to "on" then this attribute may be used to specify the minimum amount of data before the output is compressed. If not specified, this attribute is defaults to "2048".
+
+connectionLinger	
+The number of seconds during which the sockets used by this Connector will linger when they are closed. The default value is -1 which disables socket linger.
+
+connectionTimeout	
+The number of milliseconds this Connector will wait, after accepting a connection, for the request URI line to be presented. Use a value of -1 to indicate no (i.e. infinite) timeout. The default value is 60000 (i.e. 60 seconds) but note that the standard server.xml that ships with Tomcat sets this to 20000 (i.e. 20 seconds). Unless disableUploadTimeout is set to false, this timeout will also be used when reading the request body (if any).
+
+connectionUploadTimeout	
+Specifies the timeout, in milliseconds, to use while a data upload is in progress. This only takes effect if disableUploadTimeout is set to false.
+
+disableUploadTimeout	
+This flag allows the servlet container to use a different, usually longer connection timeout during data upload. If not specified, this attribute is set to true which disables this longer timeout.
+
+executor	
+A reference to the name in an Executor element. If this attribute is set, and the named executor exists, the connector will use the executor, and all the other thread attributes will be ignored. Note that if a shared executor is not specified for a connector then the connector will use a private, internal executor to provide the thread pool.
+
+executorTerminationTimeoutMillis	
+The time that the private internal executor will wait for request processing threads to terminate before continuing with the process of stopping the connector. If not set, the default is 0 (zero) for the BIO connector and 5000 (5 seconds) for the NIO, NIO2 and APR/native connectors.
+
+keepAliveTimeout	
+The number of milliseconds this Connector will wait for another HTTP request before closing the connection. The default value is to use the value that has been set for the connectionTimeout attribute. Use a value of -1 to indicate no (i.e. infinite) timeout.
+
+maxConnections	
+The maximum number of connections that the server will accept and process at any given time. When this number has been reached, the server will accept, but not process, one further connection. This additional connection be blocked until the number of connections being processed falls below maxConnections at which point the server will start accepting and processing new connections again. Note that once the limit has been reached, the operating system may still accept connections based on the acceptCount setting. The default value varies by connector type. For BIO the default is the value of maxThreads unless an Executor is used in which case the default will be the value of maxThreads from the executor. For NIO and NIO2 the default is 10000. For APR/native, the default is 8192.
+
+Note that for APR/native on Windows, the configured value will be reduced to the highest multiple of 1024 that is less than or equal to maxConnections. This is done for performance reasons.
+If set to a value of -1, the maxConnections feature is disabled and connections are not counted.
+
+maxCookieCount	
+The maximum number of cookies that are permitted for a request. A value of less than zero means no limit. If not specified, a default value of 200 will be used.
+
+maxExtensionSize	
+Limits the total length of chunk extensions in chunked HTTP requests. If the value is -1, no limit will be imposed. If not specified, the default value of 8192 will be used.
+
+maxHttpHeaderSize	
+The maximum size of the request and response HTTP header, specified in bytes. If not specified, this attribute is set to 8192 (8 KB).
+
+maxKeepAliveRequests	
+The maximum number of HTTP requests which can be pipelined until the connection is closed by the server. Setting this attribute to 1 will disable HTTP/1.0 keep-alive, as well as HTTP/1.1 keep-alive and pipelining. Setting this to -1 will allow an unlimited amount of pipelined or keep-alive HTTP requests. If not specified, this attribute is set to 100.
+
+maxSwallowSize	
+The maximum number of request body bytes (excluding transfer encoding overhead) that will be swallowed by Tomcat for an aborted upload. An aborted upload is when Tomcat knows that the request body is going to be ignored but the client still sends it. If Tomcat does not swallow the body the client is unlikely to see the response. If not specified the default of 2097152 (2 megabytes) will be used. A value of less than zero indicates that no limit should be enforced.
+
+maxThreads	
+The maximum number of request processing threads to be created by this Connector, which therefore determines the maximum number of simultaneous requests that can be handled. If not specified, this attribute is set to 200. If an executor is associated with this connector, this attribute is ignored as the connector will execute tasks using the executor rather than an internal thread pool.
+
+maxTrailerSize	
+Limits the total length of trailing headers in the last chunk of a chunked HTTP request. If the value is -1, no limit will be imposed. If not specified, the default value of 8192 will be used.
+
+minSpareThreads	
+The minimum number of threads always kept running. If not specified, the default of 10 is used.
+
+noCompressionUserAgents	
+The value is a regular expression (using java.util.regex) matching the user-agent header of HTTP clients for which compression should not be used, because these clients, although they do advertise support for the feature, have a broken implementation. The default value is an empty String (regexp matching disabled).
+
+processorCache	
+The protocol handler caches Processor objects to speed up performance. This setting dictates how many of these objects get cached. -1 means unlimited, default is 200. If not using Servlet 3.0 asynchronous processing, a good default is to use the same as the maxThreads setting. If using Servlet 3.0 asynchronous processing, a good default is to use the larger of maxThreads and the maximum number of expected concurrent requests (synchronous and asynchronous).
+
+restrictedUserAgents	
+The value is a regular expression (using java.util.regex) matching the user-agent header of HTTP clients for which HTTP/1.1 or HTTP/1.0 keep alive should not be used, even if the clients advertise support for these features. The default value is an empty String (regexp matching disabled).
+
+server	
+Overrides the Server header for the http response. If set, the value for this attribute overrides the Tomcat default and any Server header set by a web application. If not set, any value specified by the application is used. If the application does not specify a value then Apache-Coyote/1.1 is used. Unless you are paranoid, you won't need this feature.
+
+socketBuffer	
+The size (in bytes) of the buffer to be provided for socket output buffering. -1 can be specified to disable the use of a buffer. By default, a buffers of 9000 bytes will be used.
+
+SSLEnabled	
+Use this attribute to enable SSL traffic on a connector. To turn on SSL handshake/encryption/decryption on a connector set this value to true. The default value is false. When turning this value true you will want to set the scheme and the secure attributes as well to pass the correct request.getScheme() and request.isSecure() values to the servlets See SSL Support for more information.
+
+tcpNoDelay	
+If set to true, the TCP_NO_DELAY option will be set on the server socket, which improves performance under most circumstances. This is set to true by default.
+
+threadPriority	
+The priority of the request processing threads within the JVM. The default value is 5 (the value of the java.lang.Thread.NORM_PRIORITY constant). See the JavaDoc for the java.lang.Thread class for more details on what this priority means.
+
+upgradeAsyncWriteBufferSize	
+The default size of the buffer to allocate to for asynchronous writes that can not be completed in a single operation, specified in bytes. Data that can't be written immediately will be stored in this buffer until it can be written. If more data needs to be stored than space is available in the buffer than the size of the buffer will be increased for the duration of the write. If not specified the default value of 8192 will be used.

@@ -1,0 +1,63 @@
+挂载
+mount -t iso9660 -o loop CentOS-6.5-x86_64-bin-DVD1.iso  /mnt/
+
+同步
+rsync -av /mnt/ /data/nginx/zpy/centos/6/os/x86_64/
+
+安装createrepo
+yum -y install createrepo
+
+初始化repodata索引文件
+createrepo -pdo /data/nginx/zpy/centos/6/os/x86_64/ /data/nginx/zpy/centos/6/os/x86_64/
+
+以后每次加入rpm时包需要更新一下 
+createrepo --update /data/nginx/zpy/centos/6/os/x86_64/
+
+只下载软件不安装
+yumdownloader pcre-devel openssl-devel 下载到了当前目录
+
+添加本地yum源
+zpy.repo 
+[zpy]
+name=Centos6.5-$releasever
+baseurl=http://10.0.70.5/centos/$releasever/$basearch/
+enable=1
+gpgcheck=0
+
+yum.sh
+#!/bin/bash
+
+if [ ! -d /etc/yum.repos.d/backrepo ]; then
+    mkdir /etc/yum.repos.d/backrepo
+    mv /etc/yum.repos.d/*.repo /etc/yum.repos.d/backrepo/
+fi
+
+if [ ! -f /etc/yum.repos.d/zpy.repo ]; then
+    curl -s http://10.0.70.5/scripts/zpy.repo -o /etc/yum.repos.d/zpy.repo
+fi
+
+yum clean all
+yum makecache
+
+切换yum源
+curl -s http://10.0.70.5/scripts/yum.sh|bash
+
+更新yum源
+镜像同步公网yum源
+上游yum源必须要支持rsync协议，否则不能使用rsync进行同步。
+http://mirrors.ustc.edu.cn/status/
+同时只能有一个rsync同步程序运行
+base
+/usr/bin/rsync -av  rsync://rsync.mirrors.ustc.edu.cn/centos/6/os/x86_64/ /data/nginx/zpy/centos/6/os/x86_64/
+extras
+/usr/bin/rsync -av  rsync://rsync.mirrors.ustc.edu.cn/centos/6/extras/x86_64/ /data/nginx/zpy/centos/6/extras/x86_64/
+updates
+/usr/bin/rsync -av  rsync://rsync.mirrors.ustc.edu.cn/centos/6/updates/x86_64/ /data/nginx/zpy/centos/6/updates/x86_64/
+epel
+/usr/bin/rsync -av --exclude=debug  rsync://rsync.mirrors.ustc.edu.cn/epel/6/x86_64/ /data/nginx/zpy/epel/6/x86_64/
+
+开启定时任务,安装crontab命令
+rpm -qa|grep crontab
+crontabs-1.10-33.el6.noarch
+yum -y install crontabs
+
