@@ -1,0 +1,99 @@
+# salt-api
+
+## 安装salt-api
+
+`yum -y install salt-api`
+
+## 配置salt－api
+
+### 生成自签名证书(用于ssl)
+```
+cd /etc/pki/tls/certs
+make testcert(输入密码)
+cd /etc/pki/tls/private/
+openssl rsa -in localhost.key -out localhost_nopass.key(生成无密码的key文件)
+```
+### 创建salt-api用户
+```
+useradd -M -s /sbin/nologin chenzhangpeng
+echo "chenzhangpeng" | passwd chenzhangpeng —-stdin > /dev/null
+```
+
+### 配置master
+
+`grep master.d master`
+>     #from master.d/*.conf (master.d is a directory in the same directory
+>     #default_include: master.d/*.conf
+
+
+api.conf
+
+```
+rest_cherrypy:
+  port: 8000
+  ssl_crt: /etc/pki/tls/certs/localhost.crt
+  ssl_key: /etc/pki/tls/private/localhost_nopass.key
+```
+
+eauth.conf
+
+```
+external_auth:
+  pam:
+    chenzhangpeng:
+      - .*
+      - '@wheel'
+      - '@runner'
+```
+### 启动salt-api
+
+*首先重启master*
+`/etc/init.d/salt-master restart`
+再启动api
+`/etc/init.d/salt-api start`
+观察端口`8000`是否打开,出现问题查看日志`/var/log/salt/master`
+
+### 测试salt-api
+通过curl测试,默认token过期时间24小时
+
+请求
+`curl -k https://10.0.70.5:8000/login -H "Accept: application/x-yaml" -d username='chenzhangpeng' -d password='chenzhangpeng' -d eauth='pam'`
+
+返回
+
+```
+return:
+- eauth: pam
+  expire: 1474581253.3833699
+  perms:
+  - .*
+  - '@wheel'
+  - '@runner'
+  start: 1474538053.383369
+  token: c28fa02b148df3f19f4f2f25fb0cfc089e73d13e
+  user: chenzhangpeng
+```
+
+其中 token 后边的串为认证成功后获取的token串，之后可以不用再次输入密码，直接使用本Token即可查询Minion的信息
+
+请求
+`curl -k https://10.0.70.5:8000/minions/10.0.70.10 -H "Accept: application/x-yaml" -H "X-Auth-Token: c28fa02b148df3f19f4f2f25fb0cfc089e73d13e"`
+
+返回
+
+```
+return:
+- 10.0.70.10:
+    SSDs: []
+    biosreleasedate: 09/30/2014
+    biosversion: '6.00'
+    cpu_flags:
+    - fpu
+    - vme
+    - de
+    ...
+```
+
+
+
+
